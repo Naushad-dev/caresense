@@ -22,9 +22,11 @@ const port = process.env.PORT || 6969;
 //routes
 const userRoutes = require("./routes/user.routes");
 const fileRoutes = require("./routes/files.routes");
+const doctorRoutes= require("./routes/doctor.routes")
 
 app.use("/api/v1/", userRoutes);
 app.use("/api/v1/", fileRoutes);
+app.use("/api/v1/",doctorRoutes)
 
 app.listen(port, () => {
   console.log(`server successfully started at ${port}`);

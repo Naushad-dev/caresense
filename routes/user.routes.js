@@ -9,7 +9,7 @@ const authMiddleware = require("../middleware/authMiddleware");
 
 router.post("/register", RegisterController);
 router.post("/login", LoginController);
-router.post("/get-user-data", authMiddleware, AuthController);
+router.get("/get-user-data", authMiddleware, AuthController);
 router.get("/users", (req, res) => {
   res.send({
     status: true,
