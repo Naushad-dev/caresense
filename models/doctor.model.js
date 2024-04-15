@@ -1,27 +1,26 @@
-const { ref } = require("firebase/database");
 const mongoose = require("mongoose");
 
 const doctorSchema = new mongoose.Schema(
   {
+    // doctorInfo: {
+    //   type: mongoose.Schema.Types.ObjectId,
+    //   ref: "doctor_details",
+    // },
     name: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref:"doctor_details"
+      type: String,
+      required: [true, "Please Provide a name"],
     },
     email: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref:"doctor_details"
+      type: String,
+      required: [true, "Please Provide a name"],
     },
-    password: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref:"doctor_details"
+    profilepic: {
+      type: String,
+      required: [true, "Please Provide a profile picture"],
     },
-    profilepic:{
-        type: String,
-        required:[true, "Please Provide a profile picture"],
-    },
-    licenseNumber:{
-      type:String,
-      required:[true, "Please provide a license number"],
+    licenseNumber: {
+      type: String,
+      required: [true, "Please provide a license number"],
     },
     address: {
       type: String,
@@ -32,16 +31,20 @@ const doctorSchema = new mongoose.Schema(
       required: [true, "Please enter a specialization"],
     },
     experience: {
-      type: String,
+      type: Number,
       required: [true, "Please enter your experience"],
     },
     feesPerConsultation: {
       type: Number,
       required: [true, "Please enter fees"],
     },
-    timinigs: {
-      type: Object,
-      required: [true, "Please enter timing"],
+    openingTime: {
+      type: Date,
+      required: [true, "Please enter the opening timing"],
+    },
+    closingTime: {
+      type: Date,
+      required: [true, "Please enter the opening timing"],
     },
     website: {
       type: String,
@@ -49,15 +52,16 @@ const doctorSchema = new mongoose.Schema(
 
     role: {
       type: String,
-      default: "user",
+      default: "doctor",
     },
     refreshToken: {
       type: String,
     },
-    status:{
+    status: {
       type: String,
-      default:"pending"
-    }
+      enum: ["pending", "under_review", "verified"],
+      default: "pending",
+    },
   },
   { timestamps: true }
 );

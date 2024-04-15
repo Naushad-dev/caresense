@@ -1,5 +1,5 @@
 const { doctor } = require("../models/doctor.model");
-const {doctor_details}= require("../models/doctorRegisteration.model")
+const { doctor_details } = require("../models/doctorRegisteration.model");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
@@ -7,7 +7,7 @@ const doctorRegistration = async (req, res) => {
   try {
     const { name, email, password } = req.body;
     // const userExist = await doctor.findOne({ email: email });
-    const userExist= await doctor_details.findOne({ email: email });
+    const userExist = await doctor_details.findOne({ email: email });
 
     if (userExist) {
       return res.status(400).send({
@@ -62,7 +62,11 @@ const doctorLogin = async (req, res) => {
     const token = jwt.sign({ id: doc._id }, process.env.JWT_SECRET, {
       expiresIn: "7d",
     });
-await doctor_details.findOneAndUpdate({_id:doc._id},{refreshToken:token},{new:true});
+    await doctor_details.findOneAndUpdate(
+      { _id: doc._id },
+      { refreshToken: token },
+      { new: true }
+    );
 
     return res.status(200).send({
       status: true,
@@ -78,31 +82,74 @@ await doctor_details.findOneAndUpdate({_id:doc._id},{refreshToken:token},{new:tr
   }
 };
 
-const DoctorApplicationForm= async (req, res)=>{
-
-
+const doctorDetailsApplication = async (req, res) => {
+  const { email, doctorInfo } = req.body;
+  console.log(doctorInfo);
+  let {
+    profilepic,
+    licenseNumber,
+    address,
+    specialization,
+    experience,
+    feesPerConsultation,
+    openingTime,
+    closingTime,
+    website,
+    role,
+  } = doctorInfo;
+  console.log(profilepic);
+  openingTime = new Date(openingTime);
+  closingTime = new Date(closingTime);
   try {
-
-    const details= new doctor(req.body)
-    details.save();
-    return res.status(200).send({
-      message:"Application sucessfully submitted",
-      status: true,
-      details
-
-    })
-
-  } catch (error) {
-    console.log(error);
-    res.status(500).send({
-      message: "auth error",
-      success: false,
-      error,
+    const foundDoctor = await doctor_details.findOne({ email: email });
+    if (!foundDoctor) {
+      return res.status(404).json({
+        message: "You are not registered with us as a doctor",
+        success: false,
+      });
+    }
+    console.log(foundDoctor);
+    const existingdoctorDetails = await doctor.findOne({
+      _id: foundDoctor.info,
     });
-    
+    if (existingdoctorDetails) {
+      return res.status(400).json({
+        message: "Already submitted the data",
+        success: false,
+      });
+    }
+    const doctorDetails = await doctor.create({
+      email: foundDoctor.email,
+      name: foundDoctor.name,
+      profilepic,
+      licenseNumber,
+      address,
+      specialization,
+      experience,
+      feesPerConsultation,
+      openingTime,
+      closingTime,
+      website,
+      role,
+    });
+    if (!doctorDetails) {
+      throw new Error(
+        "There was an error submitting info!! Please try again later"
+      );
+    }
+    foundDoctor.info = doctorDetails._id;
+    await foundDoctor.save();
+    return res.status(200).json({
+      success: true,
+      message: "Doctor info has been sent for verification",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message,
+      success: false,
+    });
   }
-
-}
+};
 
 const DoctorAuthController = async (req, res) => {
   try {
@@ -115,7 +162,7 @@ const DoctorAuthController = async (req, res) => {
     } else {
       res.status(200).send({
         success: true,
-        data: user
+        data: user,
       });
     }
   } catch (error) {
@@ -128,4 +175,9 @@ const DoctorAuthController = async (req, res) => {
   }
 };
 
-module.exports = { doctorRegistration,doctorLogin,DoctorAuthController,DoctorApplicationForm };
+module.exports = {
+  doctorRegistration,
+  doctorLogin,
+  DoctorAuthController,
+  doctorDetailsApplication,
+};

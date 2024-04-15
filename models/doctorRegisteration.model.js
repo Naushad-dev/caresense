@@ -18,7 +18,11 @@ const doctorSchema = new mongoose.Schema(
       min: 6,
       max: 16,
     },
-},
+    info: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "doctor",
+    },
+  },
   { timestamps: true }
 );
 
