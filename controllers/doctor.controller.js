@@ -151,6 +151,67 @@ const doctorDetailsApplication = async (req, res) => {
   }
 };
 
+const getAllDoctorDetails = async (req, res) => {
+  try {
+    let doctors = await doctor_details.find().select("-password");
+
+    // If no doctors are found, return a 404 response
+    if (!doctors || doctors.length === 0) {
+      return res.status(404).json({
+        message: "No doctors found",
+        success: false,
+      });
+    }
+
+    doctors = await doctor_details.populate(doctors, {
+      path: "info",
+      model: "doctor",
+      select: "-status",
+    });
+
+    // Send the response with populated doctors
+    return res.status(200).json({
+      message: "Doctors found",
+      success: true,
+      doctors,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message,
+      success: false,
+    });
+  }
+};
+
+const getDoctorProfile = async (req, res) => {
+  try {
+    const { doctorId } = req.query;
+    const doctor = await doctor_details
+      .findOne({ _id: doctorId })
+      .select("-password")
+      .populate({
+        path: "info",
+        model: "doctor",
+      });
+
+    // If no doctor is found, return a 404 response
+    if (!doctor) {
+      return res.status(404).json({
+        message: "No doctor found",
+        success: false,
+      });
+    }
+
+    // Send the response with the populated doctor profile
+    return res.status(200).json({
+      message: "Doctor found",
+      success: true,
+      doctor,
+    });
+  } catch (error) {
+    return res.status;
+  }
+};
 const DoctorAuthController = async (req, res) => {
   try {
     const user = await doctor_details.findOne({ _id: req.body.userId });
@@ -180,4 +241,6 @@ module.exports = {
   doctorLogin,
   DoctorAuthController,
   doctorDetailsApplication,
+  getAllDoctorDetails,
+  getDoctorProfile,
 };

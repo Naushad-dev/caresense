@@ -3,6 +3,8 @@ const {
   doctorRegistration,
   doctorLogin,
   DoctorAuthController,
+  getAllDoctorDetails,
+  getDoctorProfile,
   doctorDetailsApplication,
 } = require("../controllers/doctor.controller");
 const authMiddleware = require("../middleware/authMiddleware");
@@ -13,5 +15,7 @@ router.post("/register-doctor", doctorRegistration);
 router.post("/login-doctor", doctorLogin);
 router.get("/get-doctor-data", authMiddleware, DoctorAuthController);
 router.post("/apply-doctor", doctorDetailsApplication);
+router.get("/get-doctors", getAllDoctorDetails);
+router.get("/get-doctor-profile", getDoctorProfile);
 
 module.exports = router;

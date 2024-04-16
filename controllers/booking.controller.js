@@ -9,7 +9,7 @@ const createBooking = async (req, res) => {
     let { userId, doctorId, timing } = req.body;
     if (userId.length < 24 || doctorId.length < 24) {
       return res.status(404).json({
-        message: "send correct data",
+        message: "Send correct data",
         success: false,
       });
     }
@@ -47,4 +47,114 @@ const createBooking = async (req, res) => {
   }
 };
 
-module.exports = { createBooking };
+const getBookingDetailsUser = async (req, res) => {
+  let { userId } = req.query;
+  // console.log(userId);
+  userId = new mongoose.Types.ObjectId(userId);
+  try {
+    let bookings = await Booking.aggregate([
+      // Stage 1 for matching
+      {
+        $match: {
+          patient: userId,
+        },
+      },
+      // Stage 2 for sorting by appointment
+      {
+        $sort: {
+          appointment: 1,
+        },
+      },
+    ]).exec();
+
+    // If bookings are found, populate the 'doctor' field
+    if (bookings.length > 0) {
+      bookings = await Booking.populate(bookings, {
+        path: "doctor",
+        model: "doctor_details",
+        select: "-password",
+      });
+
+      // Assuming 'doctor_details' has an 'info' field to populate
+      bookings = await Booking.populate(bookings, {
+        path: "doctor.info",
+        model: "doctor",
+      });
+    }
+
+    // console.log(bookings);
+
+    if (bookings.length < 1) {
+      return res.status(404).json({
+        message: "No bookings found for the user",
+        success: false,
+      });
+    }
+    return res.status(200).json({
+      message: "Bookings found for the user",
+      success: true,
+      bookings,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message,
+      success: false,
+    });
+  }
+};
+
+const getAppointmentDetails = async (req, res) => {
+  let { doctorId } = req.query;
+  // console.log(doctorId);
+  doctorId = new mongoose.Types.ObjectId(doctorId);
+  try {
+    let bookings = await Booking.aggregate([
+      // Stage 1 for matching
+      {
+        $match: {
+          doctor: doctorId,
+        },
+      },
+      // Stage 2 for sorting by appointment
+      {
+        $sort: {
+          appointment: 1,
+        },
+      },
+    ]).exec();
+
+    // If bookings are found, populate the 'user' field
+    if (bookings.length > 0) {
+      bookings = await Booking.populate(bookings, {
+        path: "patient",
+        model: "User",
+        select: "-password -role",
+      });
+    }
+
+    // console.log(bookings);
+
+    if (bookings.length < 1) {
+      return res.status(404).json({
+        message: "No appointments  found for you",
+        success: false,
+      });
+    }
+    return res.status(200).json({
+      message: "You have appointments!! Doctor Sahab",
+      success: true,
+      bookings,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message,
+      success: false,
+    });
+  }
+};
+
+module.exports = {
+  createBooking,
+  getBookingDetailsUser,
+  getAppointmentDetails,
+};
