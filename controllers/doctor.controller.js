@@ -3,6 +3,21 @@ const { doctor_details } = require("../models/doctorRegisteration.model");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
+const multer = require("multer");
+const { uploadToCloudinary } = require("../helper/Cloudinary");
+
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    console.log("got file", file);
+    cb(null, "uploads");
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.originalname);
+  },
+});
+const upload = multer({ storage });
+
 const doctorRegistration = async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -71,7 +86,8 @@ const doctorLogin = async (req, res) => {
     return res.status(200).send({
       status: true,
       message: "User Login Successfully",
-      token,
+      token:token,
+      doc,
     });
   } catch (error) {
     res.status(500).send({
@@ -243,4 +259,5 @@ module.exports = {
   doctorDetailsApplication,
   getAllDoctorDetails,
   getDoctorProfile,
+  upload
 };
