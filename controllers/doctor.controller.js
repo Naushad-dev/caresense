@@ -221,7 +221,9 @@ const getDoctorWithSpecialization = async (req, res) => {
     {
       //Second stage-----> After populating now finding the actual doctorinfo that have
       $match: {
-        "doctorInfo.specialization": specialization,
+        "doctorInfo.specialization": {
+          $regex: new RegExp("Dermatology", "i"), // Case-insensitive matching
+        },
       },
     },
   ];
