@@ -6,7 +6,6 @@ const jwt = require("jsonwebtoken");
 const multer = require("multer");
 const { uploadToCloudinary } = require("../helper/Cloudinary");
 
-
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     console.log("got file", file);
@@ -86,7 +85,7 @@ const doctorLogin = async (req, res) => {
     return res.status(200).send({
       status: true,
       message: "User Login Successfully",
-      token:token,
+      token: token,
       doc,
     });
   } catch (error) {
@@ -113,6 +112,8 @@ const doctorDetailsApplication = async (req, res) => {
     website,
     role,
   } = doctorInfo;
+  //Sterilise the input to lowercase
+  specialization = specialization.toLowerCase();
   console.log(profilepic);
   openingTime = new Date(openingTime);
   closingTime = new Date(closingTime);
@@ -199,6 +200,46 @@ const getAllDoctorDetails = async (req, res) => {
   }
 };
 
+const getDoctorWithSpecialization = async (req, res) => {
+  const { specialization } = req.query;
+  const pipeline = [
+    {
+      //Used to exclude password
+      $project: {
+        password: 0,
+      },
+    },
+    {
+      //First stage-----> Used to populate and add a new field in the document as doctorInfo
+      $lookup: {
+        from: "doctors",
+        localField: "info",
+        foreignField: "_id",
+        as: "doctorInfo",
+      },
+    },
+    {
+      //Second stage-----> After populating now finding the actual doctorinfo that have
+      $match: {
+        "doctorInfo.specialization": specialization,
+      },
+    },
+  ];
+
+  const doctors = await doctor_details.aggregate(pipeline);
+  if (doctors.length == 0) {
+    return res.status(404).json({
+      msg: "No doctors found with specialization in " + specialization,
+      success: false,
+    });
+  }
+  return res.status(200).json({
+    success: true,
+    msg: "Here is a list of doctors",
+    doctors,
+  });
+};
+
 const getDoctorProfile = async (req, res) => {
   try {
     const { doctorId } = req.query;
@@ -259,5 +300,6 @@ module.exports = {
   doctorDetailsApplication,
   getAllDoctorDetails,
   getDoctorProfile,
-  upload
+  upload,
+  getDoctorWithSpecialization,
 };
