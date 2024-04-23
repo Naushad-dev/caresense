@@ -22,7 +22,8 @@ async function predictDisease(symptoms) {
 
   const promptConfig = [
     {
-      text: `Analyze the following symptoms and suggest a possible disease(s) in English language: ${symptoms}. Please provide the most 3 likely disease(s) and avoid making any medical claims.Also give doctor category to whom patient should go for treatment give me answer in JSON format`,
+      text:  `Analyze the following symptoms and suggest a possible disease(s) in English language: ${symptoms} and give suggested disease on the basis of symptoms in this manner {symptoms:"Pain chest",PossibleDisease:"Angina " , doctorToConsult:"Cardiologist", desription:"Small discription about disease"} dont use asterisk or special characters  in response text`
+      
     },
   ];
 
