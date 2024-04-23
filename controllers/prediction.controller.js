@@ -1,5 +1,4 @@
-const { GoogleGenerativeAI } = require("@google/generative-AI");
-
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 // Access your Google API key as an environment variable
 const gemini_api_key = process.env.GEMINI_API_KEY;
 

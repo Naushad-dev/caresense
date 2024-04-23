@@ -1,6 +1,5 @@
-
-const multer = require("multer");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
+const multer = require("multer");
 const fs = require("fs");
 
 // Access your Google API key as an environment variable
