@@ -50,7 +50,7 @@ const createBooking = async (req, res) => {
 const getBookingDetailsUser = async (req, res) => {
   let { userId } = req.query;
   // console.log(userId);
-  userId = new mongoose.Types.ObjectId(userId);
+  userId = userId;
   try {
     let bookings = await Booking.aggregate([
       // Stage 1 for matching
