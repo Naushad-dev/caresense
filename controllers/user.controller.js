@@ -43,7 +43,7 @@ const LoginController = async (req, res) => {
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
       expiresIn: "7d",
     });
-    res.status(200).send({ message: "Login Success", success: true, user });
+    res.status(200).send({ message: "Login Success", success: true, data:user,token:token });
   } catch (error) {
     console.log(error);
     res.status(500).send({ message: `Error in Login CTRL ${error.message}` });
@@ -61,7 +61,7 @@ const AuthController = async (req, res) => {
     } else {
       res.status(200).send({
         success: true,
-        data: user
+        data: user,
       });
     }
   } catch (error) {
